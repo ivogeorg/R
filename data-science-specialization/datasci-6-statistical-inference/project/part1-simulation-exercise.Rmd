@@ -1,0 +1,141 @@
+---
+title: 'Part 1: The Exponential Distribution'
+author: "Ivo Georgiev"
+date: "July 28, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+This document demonstrates the __Central Limit Theorem__ using the exponential distribution of a continuous random variable $X$
+
+$$
+f_{X}(x|\lambda) = \left\{ \begin{array}{rcl}
+                  \lambda x^{-\lambda x} & \mbox{for} & x>0 \\ 
+                  0 & \mbox{for} & x\leq0
+                  \end{array}\right.,
+$$
+
+where $\lambda > 0$ is called the _rate_ of the distribution.
+
+The theoretical mean of the exponential distribution is 
+
+$$
+E[X] = 1/\lambda.
+$$
+
+The theoretical variance of the exponential distribution is 
+
+$$
+Var[X] = 1/{\lambda^2}.
+$$
+
+The Central Limit Theorem (CLT) states that, _given certain conditions, the arithmetic mean of a sufficiently large number of iterates of independent random variables, each with a well-defined (finite) expected value and finite variance, will be approximately normally distributed, regardless of the underlying distribution_ ([Wikipedia](https://en.wikipedia.org/wiki/Central_limit_theorem)).
+
+So, our job will be to show that the mean of sufficiently large iterates of exponentials is approximately normally distributed.
+
+### Assumptions
+
+Our assumptions for the following discussion are:
+
+1. The samples are independent and identically distributed. Since we will be using the R function __rexp(n, lambda)__, we can be assured of that.
+2. Our underlying distribution has well-defined finite mean and variance. We know that this is so. The values are shown above.
+
+## Simulations
+
+The problem statement for this part of the assignment asks for the properties of the mean of __40__ exponentials with a rate of __0.2__. This means that the theoretical _mean_ and _standard deviation_ of the distribution are both equal to __5__.
+
+Let's take a look at the histogram of 40 exponentials.
+
+```{r sim1}
+hist(rexp(40, rate = 0.2))
+```
+
+Every time this code is executed, the plot will look different, but it always looks like the values were drawn from the exponential distribution.
+
+```{r sim2}
+require(ggplot2)
+x <- seq(0, 15, length = 100)
+qplot(x, dexp(x, rate = 0.2), main="Exponential distribution, lambda = 0.2",
+      ylab = "Density")
+```
+
+For larger sample values, the plot should look more closely like the density function above.
+
+```{r sim3}
+par(mfrow = c(1, 3))
+hist(rexp(40, rate = 0.2), main = "40 samples", xlab = "x", ylab = NULL)
+hist(rexp(100, rate = 0.2), main = "100 samples", xlab = "x", ylab = NULL)
+hist(rexp(400, rate = 0.2), main = "400 samples", xlab = "x", ylab = NULL)
+```
+
+As expected, with larger samples, the histogram of the sampling closer resembles the underlying distribution.
+
+```{r sim4, echo=FALSE}
+dev.off() # needed to reset the plotting device
+```
+
+Now let's take a look at the histogram of the means of a large number of exponential samplings, using our 40-sample sampling.
+
+```{r sim5}
+mns = NULL
+for (i in 1 : 1000) mns = c(mns, mean(rexp(40, rate = 0.2)))
+hist(mns, xlab = "Sampling mean", main = "Distribution of 1000 exponential means")
+```
+
+There are two things to observe here:
+
+1. The distribution looks _normal_.
+2. It seems to be centered at _5_ which is the mean of Exponential($\lambda$) with rate=0.2.
+
+We are starting to glimpse the _Central Limit Theorem_ in action!
+
+## Sample mean vs theoretical mean
+
+Now, what is the mean of one of our samplings?
+
+```{r mean1}
+mean(rexp(40, rate = 0.2))
+```
+
+Note that this value will be different every time the code is executed but it will be close to __5__, the expected long-term value for the sampling. The sample mean is an _unbiased estimator_ of the population mean, so we are getting the correct values.
+
+The mean of a random variable is also a random variable. We saw earlier that its distribution looks normal. Let's look more closely at the distribution of 40 exponentials vs the distribution of means of 40 exponentials, again with rate (lambda) 0.2.
+
+```{r mean2, fig.height=6, figh.width=6, fig.align='center', echo = FALSE}
+require(ggplot2)
+nosim <- 10000; n <- 40
+dat <- data.frame(
+    x = c(rexp(nosim, rate = 0.2), 
+    apply(matrix(rexp(nosim * n, rate = 0.2), nosim), 1, mean)),
+    what = factor(rep(c("Obs", "Mean"), c(nosim, nosim))))
+ggplot(dat, aes(x = x, fill = what)) + geom_density(size = 2, alpha = .2) + geom_vline(xintercept = 5.0, size = 1);
+```
+
+Bearing in mind that the center of mass of the exponential with lambda = 0.2 has an x-intercept of 5, we see that the distributions of exponentials and means of exponentials are __both__ centerd at 5, which is the theoretical mean of the exponential distribution. So, _the mean of exponentials estmates the population mean_.
+
+## Sample variance vs theoretical variance
+
+Another thing to notice is that the curve of the means (salmon color in the above plot) is a lot more tightly centered around the mean of the population, which it estimates. We can show that the sample variance approximates the theoretical variance $\sigma^2/n$, where n = 40, or $Var[\overline{X}] = 1/{40\lambda^2} = 0.625$.
+
+```{r var1}
+set.seed(4995) # seed the random number generator for reproducibility
+means <- data.frame(x = apply(matrix(rexp(1000 * 40, rate = 0.2), 1000), 1, mean))
+var(means$x)
+```
+
+Indeed the empirical variance of the averages closely approximates the theoretical value.
+
+## Distribution
+
+Finally, to illustrate the _Central Limit Theorem_, we can plot the means distribution along with a stardard normal with mean = __5.0__ and standard deviation = __5/sqrt(40)__.
+
+```{r norm, echo=FALSE}
+ggplot(means, aes(x = x)) + geom_histogram(alpha = .10, binwidth=0.1, colour = "blue", aes(y = ..density..)) + stat_function(geom = "line", fun = dnorm, args = list(mean = 5.0, sd = 5.0/sqrt(40)), size = 2, colour = "blue")
+```
+
+Indeed, our distribution closely fits approximates a normal distribution, showing good evidence for the CLT.

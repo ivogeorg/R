@@ -1,0 +1,197 @@
+---
+title: 'Part 2: Basic Inferential Data Analysis'
+author: "Ivo Georgiev"
+date: "July 28, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+This document presents basic inferential analysis performed on the _ToothGrowth_ dataset, as part of the final project for the _Statistical Inference_ course of the Coursera _Data Science Specialization_. The dataset explores the effect of vitamin C on tooth growth in guinea pigs. This is an R dataset included in the _datasets_ package of the basic R distribution. 
+
+Original source: C.I.Bliss (1952) _The Statistics of Bioassay._ Academic Press.
+
+Reference: Crampton, E.W. (1947) _The growth of the odontoblast of the incisor teeth as a criterion of vitamin C intake of the guinea pig._ The Journal of Nutrition __33(5)__: 491-504. ([link](http://jn.nutrition.org/content/33/5/491.full.pdf))
+
+## Basic exploratory data analysis
+
+Let's look at the data.
+
+```{r dataset}
+require(datasets)
+data("ToothGrowth")
+dim(ToothGrowth)
+```
+
+We have 60 observations and three data points for each.
+
+```{r summary}
+summary(ToothGrowth)
+```
+
+We have two numerical columns and one factor. There are 30 observations for each value of the factor.
+
+```{r doc}
+?ToothGrowth
+```
+
+From the dataset documentation we can see that the dependent variable is the odontoblast length (__len__) and the independent variables describe the treatment with vitamin C by dose (__dose__) and type of supplement (__supp__), orange juice (__"OJ"__) or ascorbic acid (__"VC"__).
+
+How is the data distributed? Let's look at a quick plot.
+
+```{r basic-plot}
+require(ggplot2)
+qplot(dose, len, col=supp, data=ToothGrowth, main = "Odontoblast Length by Dose and Suupplement Type", xlab = "Dose", ylab = "Length")
+```
+
+We can see that the data is clustered in three groups over the corresponding doses for the two vitamin C supplements. Within a supplement, the response increases monotonically with the dosage. However, there is no clear within-cluster response pattern for the two supplements, so they look like the natural basis of comparison with statistical inference.
+
+The dataset documentation also suggests a conditioning plot that compares the data side by side for the two supplements (conditioning variable).
+
+```{r conditioning-plot}
+require(graphics)
+coplot(len ~ dose | supp, data = ToothGrowth, panel = panel.smooth,
+       xlab = "ToothGrowth data: length vs dose, given type of supplement")
+```
+
+Indeed, we can see clearly the variance in length response at the different dosages for the two supplement types.
+
+## Statistical Analysis
+
+It is obvious from the plots in the previous section that there are two goals for our inferential analysis:
+
+1. Verify that upward trend of the response vs. dosage within each supplement.
+2. Compare the response within the same dose for the different supplements.
+
+For the comparison we can use the __t__ test (__t.test__), the primary statistical test for comparing two data vectors that was taught in the course. This test, based on the heavy-tailed _Student T distribution_, is particularly suited for our small dataset.
+
+### Assumptions
+
+There are several assumptions that need to be stated, for they will determine the correct arguments to __t.test__:
+
+1. The dataset slices corresponding to the two different supplements (supplement slices) are __independent__. This is clear from the documentation which states that 60 different animals were used in the trial. This is a basic requirement for the use of the __t__ test.
+2. The supplement and dosage slices are __not paired__. The documentation states that each of the 60 animals was give only _one_ of the three doses of _one_ of the two supplements, so this is clearly the case.
+3. The slices are __not normally distributed__. (to verify) 
+4. The slices have __unequal variances__. (to verify)
+
+### Data preparation
+
+We need to slice the dataset to obtain the different data vectors for our analysis.
+
+```{r slice}
+attach(ToothGrowth)
+dose1oj <- ToothGrowth[dose ==0.5 & supp == "OJ",]
+dose2oj <- ToothGrowth[dose ==1.0 & supp == "OJ",]
+dose3oj <- ToothGrowth[dose ==2.0 & supp == "OJ",]
+
+dose1vc <- ToothGrowth[dose ==0.5 & supp == "VC",]
+dose2vc <- ToothGrowth[dose ==1.0 & supp == "VC",]
+dose3vc <- ToothGrowth[dose ==2.0 & supp == "VC",]
+detach(ToothGrowth)
+```
+
+### Assumption check
+
+Let's look at the distributions of lengths in the six slices. Since each has only 10 data points, establishing normality is highly unlikely.
+
+```{r normal, echo=FALSE}
+par(mfrow = c(2, 3))
+hist(dose1oj$len, main="0.5 mg/day OJ", xlab="Odontoblast length")
+hist(dose2oj$len, main="1.0 mg/day OJ", xlab="Odontoblast length")
+hist(dose3oj$len, main="2.0 mg/day OJ", xlab="Odontoblast length")
+hist(dose1vc$len, main="0.5 mg/day VC", xlab="Odontoblast length")
+hist(dose2vc$len, main="1.0 mg/day VC", xlab="Odontoblast length")
+hist(dose3vc$len, main="2.0 mg/day VC", xlab="Odontoblast length")
+```
+
+Evidently, the lengths are not normally distirbuted even within the dose and supplement dataset slices. Now, let's calucate the variances.
+
+```{r var}
+var(dose1oj$len) 
+var(dose2oj$len) 
+var(dose3oj$len) 
+var(dose1vc$len)
+var(dose2vc$len)
+var(dose3vc$len)
+```
+
+The variances differ widely.
+
+### Length increase with dosage
+
+The __t__ tests between dosages within each supplement group clearly show that the tooth growth increases monotonically with supplement dose. Ascorbic acid shows a slightly more pronounced increase in tooth length with the growing dosages. (Appendix A)
+
+In hypothesis testing terms, we are assuming __no growth__ as the __null hypothesis__ and comfortably reject it every time.
+
+### Comparison of supplements
+
+Here the __null hypothesis__ is that the there is __no difference between the effects__ (equal means) of the two different supplements when controlled for dose.
+
+The __t__ test is inconclusive at the 0.5 mg/day and 1.0 mg/day doses, showing a slight increase in tooth length from orange juice to ascorbic acid. The null hypothesis can be rejected only for the 1.0 mg/day dose, where ascorbic acid shows more growth. The 95% confidence interval is, nevertheless, too wide.
+
+At the 2.0 mg/day dose, the effects of the two different supplements is indistinguishable. Notice that the 95% confidence interval contains 0, making the rejection of the null hypothesis impossible.
+
+## Conclusion
+
+We have seen and verified that:
+
+1. Both vitamin C supplements make the teeth of guinea pigs grow, and the length increases monotonically with dosage.
+2. There is no clear distinction between the effects of the two supplements on the tooth length, though ascorbic acid shows slightly stronger effects.
+
+## Appendices
+
+### Appendix A: Growth w/ dosage within supplement
+
+Growth difference with orange juice betweem the 0.5 and 1.0 doses. 
+
+```{r appA-1}
+t.test(dose1oj$len, dose2oj$len, paired = FALSE, var.equal = FALSE)$conf.int
+t.test(dose1oj$len, dose2oj$len, paired = FALSE, var.equal = FALSE)$p.value
+```
+
+Growth difference with orange juice betweem the 1.0 and 2.0 doses. 
+
+```{r appA-2}
+t.test(dose2oj$len, dose3oj$len, paired = FALSE, var.equal = FALSE)$conf.int
+t.test(dose2oj$len, dose3oj$len, paired = FALSE, var.equal = FALSE)$p.value
+```
+
+Growth difference with ascorbic acid betweem the 0.5 and 1.0 doses. 
+
+```{r appA-3}
+t.test(dose1vc$len, dose2vc$len, paired = FALSE, var.equal = FALSE)$conf.int
+t.test(dose1vc$len, dose2vc$len, paired = FALSE, var.equal = FALSE)$p.value
+```
+
+Growth difference with ascorbic acid betweem the 1.0 and 2.0 doses. 
+
+```{r appA-4}
+t.test(dose2vc$len, dose3vc$len, paired = FALSE, var.equal = FALSE)$conf.int
+t.test(dose2vc$len, dose3vc$len, paired = FALSE, var.equal = FALSE)$p.value
+```
+### Appendix B: Growth comparsion between supplement per dose
+
+Comparison of growth of orange juice vs. ascorbic acid at the 0.5 dose. 
+
+```{r appB-1}
+t.test(dose1oj$len, dose1vc$len, paired = FALSE, var.equal = FALSE)$conf.int
+t.test(dose1oj$len, dose1vc$len, paired = FALSE, var.equal = FALSE)$p.value
+```
+
+Comparison of growth of orange juice vs. ascorbic acid at the 1.0 dose. 
+
+```{r appB-2}
+t.test(dose2oj$len, dose2vc$len, paired = FALSE, var.equal = FALSE)$conf.int
+t.test(dose2oj$len, dose2vc$len, paired = FALSE, var.equal = FALSE)$p.value
+```
+
+Comparison of growth of orange juice vs. ascorbic acid at the 2.0 dose. 
+
+```{r appB-3}
+t.test(dose3oj$len, dose3vc$len, paired = FALSE, var.equal = FALSE)$conf.int
+t.test(dose3oj$len, dose3vc$len, paired = FALSE, var.equal = FALSE)$p.value
+```

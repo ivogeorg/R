@@ -48,6 +48,8 @@ TODO:
 - am + carb
 - am within a make, within a class
 - for each, check the dataset to see what values for am and the other variable actually exist (this will diminish the data significantly)
+- residual plot + diagnostics
+- uncertainty quantification and correct inference in conclusion
 
 \pagebreak
 

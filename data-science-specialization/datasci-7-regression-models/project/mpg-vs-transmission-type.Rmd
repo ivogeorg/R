@@ -1,0 +1,79 @@
+---
+title: "Is Automatic or Manual Transmission Better for MPG"
+subtitle: "Final Project for Regression Models Course from Data Science Specialization"
+author: "Ivo Georgiev"
+date: "August 9, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+
+TODO - write last, in the style of the following sentences from [here](http://simplystatistics.org/2013/01/28/data-supports-claim-that-if-kobe-stops-ball-hogging-the-lakers-will-win-more/)
+
+“Data supports the claim that if Kobe stops ball hogging the Lakers will win more”
+“Linear regression suggests that an increase of 1% in % of shots taken by Kobe results in a drop of 1.16 points (+/- 0.22) in score differential.”
+
+## Exploratory Analysis
+
+TODO - label appendix figures and reference them in main text
+
+Taking a quick look at the __mtcars__ dataset shows that:
+
+1. This is a small dataset with very few observations, necessitating T tests and statistics.
+2. The following variables should be treated as factors: __cyl__ (number of cylinders), __vs__ (type of engine: 0 - __V__-engine, 1 - **s**traight), __am__ (type of transmission: 0 - automatic, 1 - manual), __gear__ (number of gears), and __carb__ (number of carburetors).
+
+A quick plot of _MPG vs type of transmission_ suggests that manual transmission is better for MPG, though:
+
+1. The dataset is _small_.
+2. There is quite a bit of _variation_ and _overlap_.
+3. The data subset for manual transmission appears _skewed_.
+
+These points should be investigated to quantify the effect of transmission on MPG. 
+
+## Statistical Analysis
+
+TODO:
+- confounders
+- missing variables (different makes/classes, driving style and idling/speeding/cruising, tuning for different classes and target clientelle)
+- am + all
+- am + all - gear
+- am + gear
+- am + drat
+- am + hp
+- am + wt
+- am + carb
+- am within a make, within a class
+- for each, check the dataset to see what values for am and the other variable actually exist (this will diminish the data significantly)
+
+\pagebreak
+
+## Appendix
+
+TODO - how to format R cmd line output as a figure (e.g. __str(mtcars)__)? caption?
+
+### A. Exploratory Analysis
+
+```{r explore-1, echo=FALSE, results='hide'}
+require(datasets)
+data(mtcars)
+```
+
+```{r explore-2, echo=FALSE}
+str(mtcars)
+```
+
+```{r explore-3, echo=FALSE}
+sapply(mtcars, unique)
+```
+
+### B. Statistical Analysis
+
+
+## References
+
+TODO
+ref for dataset [SO link](http://stackoverflow.com/questions/18617174/r-mtcars-dataset-meaning-of-vs-variable)

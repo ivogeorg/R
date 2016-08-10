@@ -1,0 +1,34 @@
+---
+title: "Digital Exercise: Correct or Incorrect"
+subtitle: "Final Project for Practical ML Course from Data Science Specialization"
+author: "Ivo Georgiev"
+date: "August 10, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+TODO: Overall parameters are:
+- 1999 words
+- 4 figures
+- gh-pages branch (to view HTML directly in the repository for grading)
+
+
+## Abstract
+
+## Exploratory Analysis
+
+```{r explore-1}
+pmlTrain <- read.csv("pml-training.csv")
+pmlTest <- read.csv("pml-testing.csv")
+dim(pmlTrain)[[2]]
+c(dim(pmlTrain)[[1]], dim(pmlTest)[[1]])
+sum(sapply(pmlTrain, function(x) {sum(!is.na(x))/length(x) == 1}))
+cbind(sapply(pmlTrain, function(x) {sum(!is.na(x))/length(x) == 1}), 
+      sapply(pmlTest, function(x) {sum(!is.na(x))/length(x) == 1}))
+```
+
+There are 19622 training samples and 20 testing samples. There are 93 nonempty columns in the training set and 60 in the testing set. It therefore makes sense to use only the columns which are nonempty in the testing set for training as well.
+

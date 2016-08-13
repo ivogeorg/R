@@ -12,50 +12,74 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Abstract
 
-TODO - write last, in the style of the following sentences from [here](http://simplystatistics.org/2013/01/28/data-supports-claim-that-if-kobe-stops-ball-hogging-the-lakers-will-win-more/)
-
-“Data supports the claim that if Kobe stops ball hogging the Lakers will win more”
-“Linear regression suggests that an increase of 1% in % of shots taken by Kobe results in a drop of 1.16 points (+/- 0.22) in score differential.”
+This document is a short study of the __mtcars__ dataset to determine the effect on car mileage per gallon (MPG) of automatic and manual transmission. With 95% confidence, we estimate that a car with manual transmision will have between 3 and 11 mpg higher mileage than an _equivalent_ car with automatic transmission. However, this small data set provides _insufficient_ evidence to confidently infer that manual transmission correlates with better performance in the wider population of cars.
 
 ## Exploratory Analysis
 
-TODO - label appendix figures and reference them in main text
+A quick look look at the __mtcars__ dataset (see Appendix A) shows that:
 
-Taking a quick look at the __mtcars__ dataset shows that:
+1. This is a small dataset, with few observations relative to regressors, necessitating the use of T tests and statistics.
+2. The following variables should be treated as factors: the variable of interest __am__ (type of transmission: 0 - automatic, 1 - manual), and also __cyl__ (number of cylinders), __vs__ (type of engine: 0 - __V__-engine, 1 - **s**traight), __gear__ (number of gears), and __carb__ (number of carburetors). The transformed dataset is called __cars__, shown in Fig A.1.
+3. Rows represent cars of different makes and classes, so the samples are independent, but there is little information on how the data was collected and therefore little ground for futher assumptions about the sample distribution and variance.
 
-1. This is a small dataset with very few observations, necessitating T tests and statistics.
-2. The following variables should be treated as factors: __cyl__ (number of cylinders), __vs__ (type of engine: 0 - __V__-engine, 1 - **s**traight), __am__ (type of transmission: 0 - automatic, 1 - manual), __gear__ (number of gears), and __carb__ (number of carburetors).
+```{r cars, echo=FALSE, results='hide'}
+cars <- transform(mtcars, cyl=as.factor(cyl), vs=as.factor(vs), gear=as.factor(gear), am=as.factor(am), carb=as.factor(carb))
+```
 
-A quick plot of _MPG vs type of transmission_ suggests that manual transmission is better for MPG, though:
+A quick plot of _MPG vs type of transmission_ (Fig A.2) suggests that manual transmission is better for MPG, though:
 
 1. The dataset is _small_.
 2. There is quite a bit of _variation_ and _overlap_.
 3. The data subset for manual transmission appears _skewed_.
 
-These points should be investigated to quantify the effect of transmission on MPG. 
+Another way to show the same effect is to use a T test of MPG for the samples with manual and automatic transmission:
+
+```{r, ttest, echo=FALSE}
+t<-t.test(cars[cars$am=="0",]$mpg, cars[cars$am=="1",]$mpg, paired=FALSE, var.equal=FALSE)
+s<-c(t$statistic,t$p.value,t$conf.int)
+names(s)<-c("t statistic", "p-value", "Conf low", "Conf high")
+s
+```
+
+Indeed, according to this test  we can confidently conclude that 95% of the time a car with manual transmission will have higher MPG than a car with automatic transmission. Fitting a linear model can allow us to quantify this effect:
+
+```{r, lm-am-only, echo=FALSE}
+summary(lm(mpg~am-1, cars))$coefficients
+```
+
+So, we can reasonably expect that 95% of the time a car with manual transmission will have on average 7 mpg higher mileage than a car with automatic transmission. (See Fig A.3).
+
+What this is saying, is that _all else being equal_ a car with manual transmission will drive 7 more miles per gallon than the __same__ car with automatic transmission. However, the dataset _does NOT support_ such a conclusion, since it clearly violates the assumption. We can see this when we add more regressors to our simple model.
 
 ## Statistical Analysis
 
-TODO:
-- confounders
-- missing variables (different makes/classes, driving style and idling/speeding/cruising, tuning for different classes and target clientelle)
-- am + all
-- am + all - gear
-- am + gear
-- am + drat
-- am + hp
-- am + wt
-- am + carb
-- am within a make, within a class
-- for each, check the dataset to see what values for am and the other variable actually exist (this will diminish the data significantly)
-- residual plot + diagnostics
-- uncertainty quantification and correct inference in conclusion
+The dataset has only two rows which allow us to compare the transmission type effect on MPG for _similar_ vehicles, the Corola and the Corona:
+
+```{r toyota, echo=FALSE}
+cars[grep("^Toyota", rownames(cars)),]
+```
+
+Even here, we see that the weight, engine size, and horsepower can __confound__ the inference about effect of transmission type on car mileage. How to pick the additional regressors? Looking at the correlation matrix for the non-factor variables in the dataset (see Appendix B), we see that weight (__wt__), horsepower (__hp__), and engine displacement (__disp__) have the highest correlation with MPG. However, horsepower is highly correlated with displacement (i.e. engine size), so only one of the two should be used. Adding weight and displacement to our model, we see that the effect of manual vs automatic transmission on MPG is almost entirely wiped out:
+
+```{r confound, echo=FALSE}
+summary(lm(mpg~am+disp+wt-1,cars))$coefficients
+```
+
+Investigating the nested model variance for the rest of the regressors (see Appendix B), we see that only engine type (__vs__) might be useful to include in the model. Adding this regressor gives us our final model:
+
+```{r final, echo=FALSE}
+summary(lm(mpg~am+disp+wt+vs-1,cars))$coefficients
+```
+
+We see that the effect of transmission type cannot be isolated easily from the rest of the factors that determine mileage performance. Manual transmission only improves mileage by about 1.5 mpg relative to automatic.
+
+## Conclusion
+
+Cars are complicated machines and many factors affect the performance criteria. Cars are made for different purposes, from commuting to racing, and are designed and tuned accordingly. The __mtcars__ dataset is extremely small but at the same time very variable, making it difficult to determine the effect of transmission type on MPG. There are no data that allow the comparison of otherwise similar or equivalent cars with manual and automatic transmission and making a strong inference on the effect of transmission type on mileage. It is a safe bet that the relation is very complex and highly non-linear.
 
 \pagebreak
 
 ## Appendix
-
-TODO - how to format R cmd line output as a figure (e.g. __str(mtcars)__)? caption?
 
 ### A. Exploratory Analysis
 
@@ -64,18 +88,53 @@ require(datasets)
 data(mtcars)
 ```
 
-```{r explore-2, echo=FALSE}
+```{r explore-2, echo=FALSE, results='hide'}
 str(mtcars)
+dim(mtcars)
+sapply(mtcars, unique)
 ```
 
 ```{r explore-3, echo=FALSE}
-sapply(mtcars, unique)
+plot(cars, main="Fig A.1: Plot of the cars dataset, showing factors")
+```
+
+```{r explore-4, echo=FALSE}
+boxplot(mpg~am, data=cars, main="Fig A.2: MPG by transmission type", col=c("red", "blue"), xaxt="n")
+axis(1, at = 1:2, labels=c("Automatic", "Manual"))
+```
+
+```{r explore-5, echo=FALSE}
+par(mfrow=c(2,2), oma=c(2,0,0,0))
+plot(lm(mpg~am-1,cars))
+mtext("Fig A.3: Linear model of MPG vs transmission type", side=1, outer = TRUE)
+```
+
+```{r explore-6, echo=FALSE, results='hide'}
+dev.off() # reset the graphical device
 ```
 
 ### B. Statistical Analysis
 
+Correlation table for the non-factor variables in the dataset:
 
-## References
+```{r stat-1, echo=FALSE}
+cor(cars[c("mpg", "disp", "hp", "drat", "wt", "qsec")])
+```
 
-TODO
-ref for dataset [SO link](http://stackoverflow.com/questions/18617174/r-mtcars-dataset-meaning-of-vs-variable)
+Analysis of variance for nested models for the dataset:
+
+```{r stat-2}
+fit1 <- lm(mpg~am+disp+wt-1, cars)        # initial confounding model
+fit2 <- update(fit1, mpg~am+disp+wt+vs-1) # final model
+fit3 <- update(fit1, mpg~am+disp+wt+vs+cyl-1)
+fit4 <- update(fit1, mpg~am+disp+wt+vs+cyl+qsec-1)
+fit5 <- update(fit1, mpg~am+disp+wt+vs+cyl+qsec+gear-1)
+fit6 <- update(fit1, mpg~am+disp+wt+vs+cyl+qsec+gear+carb-1)
+anova(fit1,fit2,fit3,fit4,fit5,fit6)
+```
+
+```{r stat-3, echo=FALSE}
+par(mfrow=c(2,2), oma=c(2,0,0,0))
+plot(lm(mpg~am-1,cars))
+mtext("Fig B.1: Confounded model of MPG vs transmission type", side=1, outer = TRUE)
+```

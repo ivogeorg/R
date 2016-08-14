@@ -21,8 +21,8 @@ TODO: Overall parameters are:
 ## Exploratory Analysis
 
 ```{r explore-1}
-pmlTrain <- read.csv("pml-training.csv", na.strings = c(""))
-pmlTest <- read.csv("pml-testing.csv", na.strings = c(""))
+pmlTrain <- read.csv("pml-training.csv", na.strings = c("", "NA"))
+pmlTest <- read.csv("pml-testing.csv", na.strings = c("", "NA"))
 dim(pmlTrain)[[2]]
 c(dim(pmlTrain)[[1]], dim(pmlTest)[[1]])
 ```
@@ -57,6 +57,5 @@ names(cols) <- c("All NA", "No NA", "Some NA")
 cols
 ```
 
+We see that the training set contains no empty (all NA) columns, 60 columns w/o missing values, and 100 columns with some missing values. The test set has 100 empty columns and 60 complete columns.
 
-
-1. Zero 

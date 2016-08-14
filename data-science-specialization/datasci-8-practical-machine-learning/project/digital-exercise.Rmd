@@ -57,5 +57,45 @@ names(cols) <- c("All NA", "No NA", "Some NA")
 cols
 ```
 
-We see that the training set contains no empty (all NA) columns, 60 columns w/o missing values, and 100 columns with some missing values. The test set has 100 empty columns and 60 complete columns.
+We see that the training set contains no empty (all NA) columns, 60 columns w/o missing values, and 100 columns with some missing values. The test set has 100 empty columns and 60 complete columns. Looking at the training set, we notice that rows with column **new_window**="yes" have no missing values. So, let's look at the columns of the training set with those rows removed.
 
+```{r explore-5, echo=FALSE}
+trainSet <- pmlTrain[pmlTrain$new_window!="yes",]
+trainAllNA <- sum(sapply(trainSet, function(x) all(is.na(x))))
+trainNoNA <- sum(sapply(trainSet, function(x) all(!is.na(x))))
+trainSomeNA <- sum(sapply(trainSet, function(x) !all(!is.na(x))))
+cols <- c(trainAllNA, trainNoNA, trainSomeNA)
+names(cols) <- c("All NA", "No NA", "Some NA")
+cols
+```
+
+This looks like the test set. According to the paper, windows are periods of time of specific duration for which sets of readings from the sensors were taken, with aggregate features computed for each window based on these sets of readings. So, the rows corresponding to _new windows_ must contain these aggregate statistics. The rest of the rows have missing values for the columns corresponding to these statistics. We notice that the test set contains no _new-window_ aggregate statistics. Let's look at the names of those statistics:
+
+```{r explore-6, echo=FALSE}
+names(pmlTest)[sapply(pmlTest, function(x) all(is.na(x)))]
+```
+
+Indeed, we see that the are all aggregates, presumably of various sets of window readings: _min, max, avg, stddev, amplitude, skewness, kurtosis_. So the training set has data for the raw instrument readings as well as aggregate statistics for various data types for each window of readings. 
+
+TODO - identify the 17 features
+
+17 features named in the paper: 
+belt: 
+- the mean of the roll (aggregate "avg_roll_belt")
+- the variance of the roll (aggregate "var_roll_belt")
+- maximum, range and variance of the accelerometer vector
+- variance of the gyro
+- variance of the magnetometer
+arm: 
+- the variance of the accelerometer vector
+- the maximum and minimum of the magnetometer
+dumbbell: 
+- the maximum of the acceleration
+- variance of the gyro
+- maximum and minimum of the magnetometer
+glove: 
+- the sum of the pitch
+- the maximum and minimum of the gyro
+
+
+__So how are the aggregate statistics to be used for learning when there are no values for them in the test set?__

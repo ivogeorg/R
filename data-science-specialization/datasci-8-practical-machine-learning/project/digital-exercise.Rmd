@@ -21,14 +21,42 @@ TODO: Overall parameters are:
 ## Exploratory Analysis
 
 ```{r explore-1}
-pmlTrain <- read.csv("pml-training.csv")
-pmlTest <- read.csv("pml-testing.csv")
+pmlTrain <- read.csv("pml-training.csv", na.strings = c(""))
+pmlTest <- read.csv("pml-testing.csv", na.strings = c(""))
 dim(pmlTrain)[[2]]
 c(dim(pmlTrain)[[1]], dim(pmlTest)[[1]])
-sum(sapply(pmlTrain, function(x) {sum(!is.na(x))/length(x) == 1}))
-cbind(sapply(pmlTrain, function(x) {sum(!is.na(x))/length(x) == 1}), 
-      sapply(pmlTest, function(x) {sum(!is.na(x))/length(x) == 1}))
 ```
 
-There are 19622 training samples and 20 testing samples. There are 93 nonempty columns in the training set and 60 in the testing set. It therefore makes sense to use only the columns which are nonempty in the testing set for training as well.
+There are 19622 training samples and 20 testing samples. There are 160 columns. The predicted variable is __classe__ and it represents one of 5 classes of performing a _unilateral dumbbell biceps curl_. It takes values "A", "B", "C", "D", and "E". The meanings are defined on the [HAR website](http://groupware.les.inf.puc-rio.br/har) in the [QAR paper](http://groupware.les.inf.puc-rio.br/public/papers/2013.Velloso.QAR-WLE.pdf). In short, "A" represents an exercise performed according to specification, while the other classes represent particular identifiable errors in the performance of the exercise.
 
+The following shows the number of training samples for each class (__classe__):
+
+```{r explore-2}
+aggregate(pmlTrain$classe, list(pmlTrain$classe), length)
+```
+
+Looking at the columns of the train set...
+
+```{r explore-3, echo=FALSE}
+trainAllNA <- sum(sapply(pmlTrain, function(x) all(is.na(x))))
+trainNoNA <- sum(sapply(pmlTrain, function(x) all(!is.na(x))))
+trainSomeNA <- sum(sapply(pmlTrain, function(x) !all(!is.na(x))))
+cols <- c(trainAllNA, trainNoNA, trainSomeNA)
+names(cols) <- c("All NA", "No NA", "Some NA")
+cols
+```
+
+and the test set...
+
+```{r explore-4, echo=FALSE}
+trainAllNA <- sum(sapply(pmlTest, function(x) all(is.na(x))))
+trainNoNA <- sum(sapply(pmlTest, function(x) all(!is.na(x))))
+trainSomeNA <- sum(sapply(pmlTest, function(x) !all(!is.na(x))))
+cols <- c(trainAllNA, trainNoNA, trainSomeNA)
+names(cols) <- c("All NA", "No NA", "Some NA")
+cols
+```
+
+
+
+1. Zero 

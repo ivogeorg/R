@@ -12,19 +12,32 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## TODO
 
-1. Follow the approach in ISLR 3.2.2, following the 4 questions:
+1. Follow the approach in ISLR 3.2.2 and 3.4, following the 4 (7 in 3.4) questions:
     + Is at least one of the predictors X1 , X2 , . . . , Xp useful in predicting the response?
     + Do all the predictors help to explain Y, or is only a subset of the predictors useful?
     + How well does the model fit the data?
     + Given a set of predictor values, what response value should we predict, and how accurate is our prediction?
+    
 2. Revisit intercept vs no-intercept. If intercept, interpret it correctly, i.e. explain _what is the baseline_.
 3. Plots:
     + before and after _adjustment_
     + confidence/prediction intervals
-    + multi-dimensional plot highlighting the residuals, potentially testing the linearity assumption
+    + multi-dimensional plot highlighting the residuals, potentially testing the linearity assumption (to help with (4) below)
 4. Investigate relaxations of the linear model assumptions, additivity and linearity, and interpret in the conclusion.
-5. Rewrite the abstract to reflect the new analysis. State everything clearly.
-6. Style:
+    + interaction terms of transmission type with other variables
+    + investigate and plot two parallel lines vs interaction term (see ISLR Fig 3.7)
+    + polynomial regression for the quantitative adjustment regressors (have to investigate and plot separately)
+5. Investigate the potential problems in ISLR 3.3.3 (also see [Quick-R](http://www.statmethods.net/stats/rdiagnostics.html)):
+    + Non-linearity of the response-predictor relationships
+    + Correlation of error terms
+    + Non-constant variance of error terms
+    + Outliers
+    + High-leverage points
+6. Collinearity.
+    + collinearity (plot) vs correlation (number)
+    + multi-collinearity and the variance inflation factor (VIF)
+6. Rewrite the abstract to reflect the new analysis. State everything clearly.
+7. Style:
     + remove verbosity
     + leave enough r code chunks to keep the document together
     + what to do with r code chunk output: intersperse into main text or format as appendix figures?

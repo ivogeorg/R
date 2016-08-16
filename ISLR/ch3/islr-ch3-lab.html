@@ -523,7 +523,7 @@ summary(lm.fit.log)</code></pre>
 ## Residual standard error: 1.011 on 386 degrees of freedom
 ## Multiple R-squared:  0.8761, Adjusted R-squared:  0.8719 
 ## F-statistic:   210 on 13 and 386 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p>Notice the <em>interaction terms</em>.</p>
+<p>Notice the <em>interaction terms</em>. The interaction terms <em>X1 * X2</em> and <em>X1 + X2 + X1:X2</em> are equivalent.</p>
 <p>R generates the dummy variables for all qualitative terms. Use the <em>contrast()</em> function to view the contrasts (contast matrix) associated with a factor variable. It can also be used to set the constasts.</p>
 <pre class="r"><code>contrasts(ShelveLoc)</code></pre>
 <pre><code>##        Good Medium

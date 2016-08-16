@@ -229,7 +229,7 @@ lm.fit.qual <- lm(Sales ~ . + Income:Advertising + Price:Age, data=Carseats)
 summary(lm.fit.qual)
 ```
 
-Notice the _interaction terms_.
+Notice the _interaction terms_. The interaction terms _X1 * X2_ and _X1 + X2 + X1:X2_ are equivalent.
 
 R generates the dummy variables for all qualitative terms. Use the _contrast()_ function to view the contrasts (contast matrix) associated with a factor variable. It can also be used to set the constasts.
 

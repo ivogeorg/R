@@ -36,10 +36,11 @@ knitr::opts_chunk$set(echo = TRUE)
 6. Collinearity.
     + collinearity (plot) vs correlation (number)
     + multi-collinearity and the variance inflation factor (VIF)
-6. Rewrite the abstract to reflect the new analysis. State everything clearly.
-7. Style:
+7. Explore the contrasts
+8. Rewrite the abstract to reflect the new analysis. State everything clearly.
+9. Style:
     + remove verbosity
-    + leave enough r code chunks to keep the document together
+    + leave enough r code chunks in the main section to keep the document together
     + what to do with r code chunk output: intersperse into main text or format as appendix figures?
     + consistent and thorough figure captions
     + to save figure space, collect related plots into panels

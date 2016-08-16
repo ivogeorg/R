@@ -11,8 +11,21 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Highlights
 
-Functions and techniques of note (a good Gist candidate)
-...
+Functions and techniques of note _(perhaps a good Gist candidate?)_:
+
+1. coef()
+2. confint()
+3. predict()
+4. residuals()
+5. rstudent()
+6. hatvalues()
+7. which.max()
+8. vif() (package car)
+9. update()
+10. I()
+11. anova()
+12. poly()
+13. contrasts()
 
 ## 3.6.2 Simple Linear Regression
 
@@ -78,3 +91,152 @@ plot(1:20,1:20,pch=1:20)
 
 Diagnostic plots to further investigate the model fit.
 
+```{r simple-8, echo=FALSE}
+par(mfrow=c(2, 2))
+plot(lm.fit)
+```
+
+The non-linearity is now clearly visible.
+
+Individual residual plots can be computed separately as well.
+
+```{r simple-9}
+dev.off()
+par(mfrow=c(1, 2))
+plot(predict(lm.fit), residuals(lm.fit))
+plot(predict(lm.fit), rstudent(lm.fit))
+```
+
+Leverage statistics can be computed with _hatvalues_.
+
+```{r simple-10}
+dev.off()
+par(mar = c(6.5, 6.5, 6.5, 6.5)) # extend margins
+plot(hatvalues(lm.fit))
+maxLvg <- which.max(hatvalues(lm.fit))
+abline(v=maxLvg, col="blue")
+axis(1, at=maxLvg, labels = round(maxLvg, 2), mgp = c(10, 2, 0)) # prevent overlap 
+```
+
+## 3.6.3 Multiple Linear Regression
+
+```{r mult-0, echo=FALSE, results='hide'}
+dev.off()
+```
+
+We now add __age__ to the model.
+
+```{r mult-1}
+lm.fit.mult <- lm(medv ~ lstat + age)
+summary(lm.fit.mult)
+```
+
+Now use all the regressors.
+
+```{r mult-2}
+lm.fit.all <- lm(medv ~ ., data=Boston) # note: attaching the ds doesn't resolve the dot '.' notation
+summary(lm.fit.all)
+```
+
+Individual components of the summary object can be accessed.
+
+```{r mult-3}
+names(summary(lm.fit.all))
+summary(lm.fit.all)$r.squared # % explained variance R^2
+summary(lm.fit.all)$sigma   # residual standard error RSE
+```
+
+To detect multi-collinearity, use _vir()_ from the _car_ package (__C__ompanion to __A__pplied __R__egression) to compute _variance inflation factors_. VIF is variance of a coefficient in the full model over variance of coefficient when fit alone. VIF >= 1. VIF == 1 means absence of collinearity. Vif >= 5 or 10 means presence of collinearity.
+
+```{r mult-4}
+require(car)
+vif(lm.fit.all)
+```
+
+__rad__ and __tax__ appear to have high collinearity.
+
+A particular regressor can be excluded for the model with the following syntax:
+
+```{r mult-5}
+lm.fit.no.age <- lm(medv ~ .-age, data=Boston)
+summary(lm.fit.no.age)
+```
+
+The function _update()_ can also be used as follows:
+
+```{r mult-6}
+lm.fit.no.age.1 <- update(lm.fit.all, ~.-age)
+summary(lm.fit.no.age.1)
+```
+
+## 3.6.4 Interaction Terms
+
+Interaction terms are useful to take care of non-linear effects in the data.
+
+```{r interact}
+summary(lm(medv ~ lstat * age))
+```
+
+## 3.6.5 Non-linear Transformations of the Predictors
+
+Quadratic terms can be added to _lm()_.
+
+```{r nonlin-1}
+lm.fit.quad <- lm(medv ~ lstat + I(lstat^2))
+summary(lm.fit.quad)
+par(mfrow=c(2,2))
+plot(lm.fit.quad)
+```
+
+The plot of residuals vs fitted values shows significantly reduced non-linearity, suggesting that we have explained some of it and have a better model. The very low p-values show that there is an improvement in the model by adding the quadratic term. Use _anova()_ to quantify the superiority of the new model. _anova()_ performs a hypothesis test comparing the two models, with null hypothesis that the two models fit the data equally well and alternative hypothesis that the full model is superior.
+
+```{r nonlin-2}
+dev.off() # reset the plotting device
+anova(lm.fit, lm.fit.quad)
+```
+
+The F-statistic is high and its p-value effectively zero, showing that the full model is far superior to the original. The residuals plots show little discernible non-linear pattern.
+
+For higher polynomials, the _poly()_ function can be used withing _lm()_.
+
+```{r nonlin-3}
+lm.fit.quint <- lm(medv ~ poly(lstat, 5))
+summary(lm.fit.quint)
+```
+
+The model continues improving with the addition of polynomial terms __up to but no further than_ order 5. TODO: investigate...
+
+Other non-linear terms can also be used directly in the _lm()_ function.
+
+```{r nonlin-4}
+lm.fit.log <- lm(medv ~ log(rm))
+summary(lm.fit.log)
+
+detach(Boston)
+```
+
+## 3.6.6 Qualitative Predictors
+
+The dataset is _Carseats_.
+
+```{r qual-1, echo=FALSE}
+data("Carseats")
+dim(Carseats)
+names(Carseats)
+attach(Carseats)
+
+lm.fit.qual <- lm(Sales ~ . + Income:Advertising + Price:Age, data=Carseats)
+summary(lm.fit.qual)
+```
+
+Notice the _interaction terms_.
+
+R generates the dummy variables for all qualitative terms. Use the _contrast()_ function to view the contrasts (contast matrix) associated with a factor variable. It can also be used to set the constasts.
+
+```{r qual-2}
+contrasts(ShelveLoc)
+```
+
+Notice the positive coefficients for the _ShelveLocGood_ and _ShelveLocMedium_ regressors, indicating higher sales for good and medium shelving locations relative to a bad one. Naturally, the coefficient for the good location is higher than that for the medium location.
+  
+  

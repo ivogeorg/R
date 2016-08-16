@@ -42,7 +42,7 @@ knitr::opts_chunk$set(echo = TRUE)
     + leave enough r code chunks to keep the document together
     + what to do with r code chunk output: intersperse into main text or format as appendix figures?
     + consistent and thorough figure captions
-    + collect plots into multi-plot figures
+    + to save figure space, collect related plots into panels
 
 ## Abstract
 

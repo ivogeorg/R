@@ -1,0 +1,80 @@
+---
+title: "ISLR-Ch3-Lab"
+author: "Ivo Georgiev"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Highlights
+
+Functions and techniques of note (a good Gist candidate)
+...
+
+## 3.6.2 Simple Linear Regression
+
+The dataset is _Boston_.
+
+```{r simple-1, echo=FALSE}
+require(MASS)
+require(ISLR)
+data("Boston")
+attach(Boston)
+```
+
+Response variable is _median house value_ (__medv__).
+
+```{r simple-2, echo=FALSE}
+par(mar = c(6.5, 6.5, 6.5, 6.5)) # extend margins
+hist(medv)
+abline(v=mean(medv), col="red")
+axis(1, at=mean(medv), labels = round(mean(medv), 2), mgp = c(10, 2, 0)) # prevent overlap, default is c(3, 1, 0)
+```
+
+```{r simple-3, echo=FALSE, results='hide'}
+dev.off() # reset the plotting device
+```
+
+Simple linear model _medv ~ lstat_. Showing various information available in the _lm_ object.
+
+```{r simple-4}
+lm.fit <- lm(medv ~ lstat) # note: dataset is attached
+lm.fit
+summary(lm.fit)
+names(lm.fit)
+coef(lm.fit)
+confint(lm.fit)
+```
+
+Prediction with _predict_, supplying new data in _data.frame_. Notice that the confidence interval, which quantifies uncertainty in average response, is __narrower__ than the prediction interval, which quantifies uncertainty of response at a particular value of the predictor(s).
+
+```{r simple-5}
+predict(lm.fit,data.frame(lstat=c(5,10,15)), interval ="confidence")
+predict(lm.fit,data.frame(lstat=c(5,10,15)), interval ="prediction")
+```
+
+Plot the predictor and the response, along with the fitted line, to inspect for non-linearity.
+
+```{r simple-6, echo=FALSE}
+plot(lstat, medv)
+abline(lm.fit) # equivalent to abline(reg=lm.fit), where reg is an object with coef
+```
+
+There is clearly some non-linearity in the data.
+
+Various plotting options (not evaluated):
+
+```{r simple-7, eval=FALSE}
+abline(lm.fit,lwd=3)
+abline(lm.fit,lwd=3,col="red")
+plot(lstat,medv,col="red")
+plot(lstat,medv,pch=20)
+plot(lstat,medv,pch="+")
+plot(1:20,1:20,pch=1:20)
+```
+
+Diagnostic plots to further investigate the model fit.
+

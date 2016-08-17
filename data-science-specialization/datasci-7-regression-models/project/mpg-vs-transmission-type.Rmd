@@ -23,6 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
     + before and after _adjustment_
     + confidence/prediction intervals
     + multi-dimensional plot highlighting the residuals, potentially testing the linearity assumption (to help with (4) below)
+    + ggplot2 outside of exploratory analysis
 4. Investigate relaxations of the linear model assumptions, additivity and linearity, and interpret in the conclusion.
     + interaction terms of transmission type with other variables
     + investigate and plot two parallel lines vs interaction term (see ISLR Fig 3.7)

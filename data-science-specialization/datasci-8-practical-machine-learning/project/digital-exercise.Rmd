@@ -97,5 +97,9 @@ glove:
 - the sum of the pitch
 - the maximum and minimum of the gyro
 
+### Questions
 
 __So how are the aggregate statistics to be used for learning when there are no values for them in the test set?__
+
+1. It's possible that we need to select only the columns with the raw readings and play with different models using only them as predictors. The aggregate statistics are used for the window-based feature selection for activity recognition. Without them, predicting the class of th activity that a single reading sample (i.e. a single row of raw readings) belongs to is going to be very inaccurate. Note that the largest window of 2.5 seconds yielded the best predictive accuracy. This is to be expected since recognizing an activity through smaller observation windows becomes less and less accurate. _TODO: Try to recreate the results from the paper to see if they predicted per window or per row!_
+

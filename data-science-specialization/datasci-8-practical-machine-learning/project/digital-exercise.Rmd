@@ -2,7 +2,7 @@
 title: "Digital Exercise: Correct or Incorrect"
 subtitle: "Final Project for Practical ML Course from Data Science Specialization"
 author: "Ivo Georgiev"
-date: "August 10, 2016"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 

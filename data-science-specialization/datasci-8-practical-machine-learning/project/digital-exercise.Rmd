@@ -103,3 +103,5 @@ __So how are the aggregate statistics to be used for learning when there are no 
 
 1. It's possible that we need to select only the columns with the raw readings and play with different models using only them as predictors. The aggregate statistics are used for the window-based feature selection for activity recognition. Without them, predicting the class of th activity that a single reading sample (i.e. a single row of raw readings) belongs to is going to be very inaccurate. Note that the largest window of 2.5 seconds yielded the best predictive accuracy. This is to be expected since recognizing an activity through smaller observation windows becomes less and less accurate. _TODO: Try to recreate the results from the paper to see if they predicted per window or per row!_
 
+2. It might also be possible to use a windows's aggregate statistics for each row of the window. Intuitively, this will make easier the activity recognition for which a row may be a part of. _TODO: Aggreagate on window sizes per activity. Have different window sizes been used for the same data?_
+

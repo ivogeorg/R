@@ -1,0 +1,38 @@
+---
+title: "Spam dataset PCA test"
+author: "Ivo Georgiev"
+date: "September 6, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## SPAM DS PCA Test
+
+Load ds. Partition for ML.
+
+```{r spam-1}
+require(caret)
+require(kernlab)
+data(spam) 
+inTrain  <- createDataPartition(y=spam$type, p=0.75, list=FALSE) 
+training <- spam[ inTrain,]
+testing  <- spam[-inTrain,]
+```
+
+Preprocess training with PCA.
+
+```{r spam-2}
+preProc  <- preProcess(log10(training[, -58] + 1), method = "pca", pcaComp = 2) 
+trainPC  <- predict(preProc, log10(training[, -58] + 1))
+modelFit <- train(training$type ~ ., method = "glm", data = trainPC) # TODO has caret changed?
+```
+
+Preprocess testing subset. Assess accuracy.
+
+```{r spam-3}
+testPC <- predict(preProc, log10(testing[, -58] + 1))
+confusionMatrix(testing$type, predict(modelFit, testPC))
+```

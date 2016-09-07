@@ -1,0 +1,163 @@
+---
+title: "pml-q2"
+author: "Ivo Georgiev"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1
+
+Splitting a dataset into training and test subsets:
+
+```{r p1-1}
+require(caret)
+require(AppliedPredictiveModeling) # package with data
+data(AlzheimerDisease)
+adData     <- data.frame(diagnosis, predictors)
+trainIndex <- createDataPartition(diagnosis, p=0.50, list=FALSE) # returns a matrix
+training   <- adData[trainIndex,]
+testing    <- adData[-trainIndex,]
+```
+
+
+## Problem 2
+
+Visual identification of a non-random pattern in the outcome, unexplained by the predictors:
+
+```{r p2-1}
+require(caret)
+require(AppliedPredictiveModeling)
+data(concrete)
+set.seed(1000) # for repeatability
+inTrain  <- createDataPartition(mixtures$CompressiveStrength, p=3/4)[[1]] # returns a list 
+training <- mixtures[inTrain,]
+testing  <- mixtures[-inTrain,]
+```
+
+Plot the outcome against the sample indices coloring each sample by each (factorized) predictor:
+
+```{r p2-2}
+require(ggplot2)
+require(Hmisc)
+Cut.Cement <- cut2(training$Cement)
+qplot(seq_along(training$CompressiveStrength),
+      training$CompressiveStrength,
+      colour = Cut.Cement,
+      ylab = "Compressive strength",
+      xlab = "Samples")
+```
+
+```{r p2-3}
+require(ggplot2)
+require(Hmisc)
+qplot(seq_along(training$CompressiveStrength),
+      training$CompressiveStrength,
+      colour = cut2(training$BlastFurnaceSlag),
+      ylab = "Compressive strength",
+      xlab = "Samples")                       # TODO: how to re-label the legend?
+```
+
+```{r p2-4}
+require(ggplot2)
+require(Hmisc)
+qplot(seq_along(training$CompressiveStrength),
+      training$CompressiveStrength,
+      colour = cut2(training$FlyAsh),
+      ylab = "Compressive strength",
+      xlab = "Samples")                       # TODO: how to re-label the legend?
+```
+
+```{r p2-5}
+require(ggplot2)
+require(Hmisc)
+qplot(seq_along(training$CompressiveStrength),
+      training$CompressiveStrength,
+      colour = cut2(training$Water),
+      ylab = "Compressive strength",
+      xlab = "Samples")                       # TODO: how to re-label the legend?
+```
+
+```{r p2-6}
+require(ggplot2)
+require(Hmisc)
+qplot(seq_along(training$CompressiveStrength),
+      training$CompressiveStrength,
+      colour = cut2(training$Superplasticizer),
+      ylab = "Compressive strength",
+      xlab = "Samples")                       # TODO: how to re-label the legend?
+```
+
+```{r p2-7}
+require(ggplot2)
+require(Hmisc)
+qplot(seq_along(training$CompressiveStrength),
+      training$CompressiveStrength,
+      colour = cut2(training$CoarseAggregate),
+      ylab = "Compressive strength",
+      xlab = "Samples")                       # TODO: how to re-label the legend?
+```
+
+```{r p2-8}
+require(ggplot2)
+require(Hmisc)
+qplot(seq_along(training$CompressiveStrength),
+      training$CompressiveStrength,
+      colour = cut2(training$FineAggregate),
+      ylab = "Compressive strength",
+      xlab = "Samples")                       # TODO: how to re-label the legend?
+```
+
+```{r p2-9}
+require(ggplot2)
+require(Hmisc)
+qplot(seq_along(training$CompressiveStrength),
+      training$CompressiveStrength,
+      colour = cut2(training$Age),
+      ylab = "Compressive strength",
+      xlab = "Samples")                       # TODO: how to re-label the legend?
+```
+
+There is a non-random pattern in the plot of the outcome versus sample index that does not appear to be well explained by any single predictor. 
+
+## Problem 3
+
+Identifying a skewed predictor variable:
+
+```{r p3-1}
+require(caret)
+require(AppliedPredictiveModeling) # package with data
+data(AlzheimerDisease)
+adData     <- data.frame(diagnosis, predictors)
+trainIndex <- createDataPartition(diagnosis, p=0.50, list=FALSE) # returns a matrix
+training   <- adData[trainIndex,]
+testing    <- adData[-trainIndex,]
+```
+
+Plot a histogram of Superplasticizer:
+
+```{r p3-2}
+hist(training$Superplasticizer)
+hist(log(training$Superplasticizer + 1)) # to avoid taking log(0)
+```
+
+The Superplasticizer predictor variable is clearly skewed. There is a large number of identical values (in this case zeroes), so even the logarithmic transformation does not result in a symmetric distribution.
+
+## Problem 4
+
+Using only a subset of the predictors to capture a preset fraction of the variance:
+
+```{r p4-1}
+library(caret)
+library(AppliedPredictiveModeling)
+set.seed(3433)
+data(AlzheimerDisease)
+adData   <- data.frame(diagnosis,predictors)
+inTrain  <- createDataPartition(adData$diagnosis,p=3/4)[[1]]
+training <- adData[ inTrain,]
+testing  <- adData[-inTrain,]
+```
+

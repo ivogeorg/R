@@ -129,12 +129,12 @@ Identifying a skewed predictor variable:
 
 ```{r p3-1}
 require(caret)
-require(AppliedPredictiveModeling) # package with data
-data(AlzheimerDisease)
-adData     <- data.frame(diagnosis, predictors)
-trainIndex <- createDataPartition(diagnosis, p=0.50, list=FALSE) # returns a matrix
-training   <- adData[trainIndex,]
-testing    <- adData[-trainIndex,]
+require(AppliedPredictiveModeling)
+data(concrete)
+set.seed(1000)
+inTrain=createDataPartition(mixtures$CompressiveStrength,p=3/4)[[1]] 
+training=mixtures[inTrain,]
+testing=mixtures[-inTrain,]
 ```
 
 Plot a histogram of Superplasticizer:
@@ -161,3 +161,43 @@ training <- adData[ inTrain,]
 testing  <- adData[-inTrain,]
 ```
 
+Perform PCA pre-processing, setting the cutoff for the cumulative percent of the variance to be captured. The _preProcess_ function to will use only the necessary number of predictors during the pre-processing.
+
+Using _grep_ to select only the IL (*i*nter*l*eukin) predictors.
+
+```{r p4-2}
+preProc1 <- preProcess(training[,grep("^IL", names(training))], method="pca", thresh = .8)
+preProc1$numComp # number of PCs required to capture the specified amount of variance 
+```
+
+## Problem 5
+
+Comparing accuracy of predictive models w/ vs w/o PCA pre-processing:
+
+```{r p5-1}
+library(caret)
+library(AppliedPredictiveModeling)
+set.seed(3433)
+data(AlzheimerDisease)
+adData1  <- data.frame(diagnosis, predictors[, grep("^IL", names(predictors))])
+inTrain  <- createDataPartition(adData1$diagnosis,p=3/4)[[1]]
+training <- adData1[ inTrain,]
+testing  <- adData1[-inTrain,]
+```
+
+Train two models. Use a generalized linear model. Use only the interleukin predictors. The first model is w/o PCA pre-processing.
+
+```{r p5-2}
+fitNoPCA <- train(diagnosis ~ ., method="glm", data = training)
+confusionMatrix(testing$diagnosis, predict(fitNoPCA, testing))
+```
+
+```{r p5-3}
+preProcPCA <- preProcess(training[, -1], method = "pca", thresh = 0.8)
+trainPCA   <- predict(preProcPCA, training[, -1])
+fitPCA     <- train(training$diagnosis ~ ., method = "glm", data = trainPCA) # TODO
+testPCA    <- predict(preProcPCA, testing[, -1])
+confusionMatrix(testing$diagnosis, predict(fitPCA, testPCA))
+```
+
+The PCA preprocessing raises the accuracy from 0.65 to 0.72.

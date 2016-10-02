@@ -195,7 +195,7 @@ confusionMatrix(testing$diagnosis, predict(fitNoPCA, testing))
 ```{r p5-3}
 preProcPCA <- preProcess(training[, -1], method = "pca", thresh = 0.8)
 trainPCA   <- predict(preProcPCA, training[, -1])
-fitPCA     <- train(training$diagnosis ~ ., method = "glm", data = trainPCA) # TODO
+fitPCA     <- train(training$diagnosis ~ ., method = "glm", data = trainPCA) # TODO: no diagnosis here
 testPCA    <- predict(preProcPCA, testing[, -1])
 confusionMatrix(testing$diagnosis, predict(fitPCA, testPCA))
 ```

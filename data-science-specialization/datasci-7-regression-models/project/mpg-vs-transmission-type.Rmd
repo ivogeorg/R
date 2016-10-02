@@ -17,17 +17,16 @@ knitr::opts_chunk$set(echo = TRUE)
     + Do all the predictors help to explain Y, or is only a subset of the predictors useful?
     + How well does the model fit the data?
     + Given a set of predictor values, what response value should we predict, and how accurate is our prediction?
-    
-2. Revisit intercept vs no-intercept. If intercept, interpret it correctly, i.e. explain _what is the baseline_.
+2. Revisit intercept vs no-intercept. If intercept, interpret it correctly, i.e. explain _what is the baseline_ (i.e. x=0)
 3. Plots:
     + before and after _adjustment_
     + confidence/prediction intervals
     + multi-dimensional plot highlighting the residuals, potentially testing the linearity assumption (to help with (4) below)
     + ggplot2 outside of exploratory analysis
-4. Investigate relaxations of the linear model assumptions, additivity and linearity, and interpret in the conclusion.
+4. Investigate relaxations of the linear model assumptions, namely additivity and linearity, and interpret in the conclusion.
     + interaction terms of transmission type with other variables
     + investigate and plot two parallel lines vs interaction term (see ISLR Fig 3.7)
-    + polynomial regression for the quantitative adjustment regressors (have to investigate and plot separately)
+    + polynomial regression for the _quantitative adjustment regressors_ (have to investigate and plot separately)
 5. Investigate the potential problems in ISLR 3.3.3 (also see [Quick-R](http://www.statmethods.net/stats/rdiagnostics.html)):
     + Non-linearity of the response-predictor relationships
     + Correlation of error terms
@@ -85,7 +84,7 @@ summary(lm(mpg~am-1, cars))$coefficients
 
 So, we can reasonably expect that 95% of the time a car with manual transmission will have on average 7 mpg higher mileage than a car with automatic transmission. (See Fig A.3).
 
-What this is saying, is that _all else being equal_ a car with manual transmission will drive 7 more miles per gallon than the __same__ car with automatic transmission. However, the dataset _does NOT support_ such a conclusion, since it clearly violates the assumption. We can see this when we add more regressors to our simple model.
+What this is saying, is that, _all other factors being equal_, a car with manual transmission will drive 7 more miles per gallon than the __same__ car with automatic transmission. However, the dataset _does NOT support_ such a conclusion, since it clearly violates the assumption. We can see this when we add more regressors to our simple model.
 
 ## Statistical Analysis
 
@@ -111,7 +110,7 @@ We see that the effect of transmission type cannot be isolated easily from the r
 
 ## Conclusion
 
-Cars are complicated machines and many factors affect the performance criteria. Cars are made for different purposes, from commuting to racing, and are designed and tuned accordingly. The __mtcars__ dataset is extremely small but at the same time very variable, making it difficult to determine the effect of transmission type on MPG. There are no data that allow the comparison of otherwise similar or equivalent cars with manual and automatic transmission and making a strong inference on the effect of transmission type on mileage. It is a safe bet that the relation is very complex and highly non-linear.
+Cars are complicated machines and many factors affect their performance criteria. Cars are made for different purposes, from commuting to racing, and are designed and tuned accordingly. The __mtcars__ dataset is extremely small but at the same time very variable, making it difficult to determine the effect of transmission type on MPG. There are no data that allow the comparison of otherwise similar or equivalent cars with manual and automatic transmission and making a strong inference on the effect of transmission type on mileage. It is a safe bet that the relation is very complex and highly non-linear.
 
 \pagebreak
 

@@ -54,21 +54,23 @@ qplot(seq_along(training$CompressiveStrength),
 ```{r p2-3}
 require(ggplot2)
 require(Hmisc)
+Cut.BlastFurnaceSlag <- cut2(training$BlastFurnaceSlag)
 qplot(seq_along(training$CompressiveStrength),
       training$CompressiveStrength,
-      colour = cut2(training$BlastFurnaceSlag),
+      colour = Cut.BlastFurnaceSlag,
       ylab = "Compressive strength",
-      xlab = "Samples")                       # TODO: how to re-label the legend?
+      xlab = "Samples")
 ```
 
 ```{r p2-4}
 require(ggplot2)
 require(Hmisc)
+Cut.FlyAsh <- cut2(training$FlyAsh)
 qplot(seq_along(training$CompressiveStrength),
       training$CompressiveStrength,
-      colour = cut2(training$FlyAsh),
+      colour = Cut.FlyAsh,
       ylab = "Compressive strength",
-      xlab = "Samples")                       # TODO: how to re-label the legend?
+      xlab = "Samples")
 ```
 
 ```{r p2-5}
@@ -121,7 +123,7 @@ qplot(seq_along(training$CompressiveStrength),
       xlab = "Samples")                       # TODO: how to re-label the legend?
 ```
 
-There is a non-random pattern in the plot of the outcome versus sample index that does not appear to be well explained by any single predictor. 
+There is a non-random pattern in the plot of the outcome versus sample index that does not appear to be well explained by any single predictor. _(TODO: How would it look if it were well explained by one of the predictors?)_
 
 ## Problem 3
 

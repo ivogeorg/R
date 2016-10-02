@@ -1,5 +1,5 @@
 ---
-title: "Digital Exercise: Correct or Incorrect"
+title: "Digital Exercise Evaluation: Correct vs Incorrect Technique"
 subtitle: "Final Project for Practical ML Course from Data Science Specialization"
 author: "Ivo Georgiev"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
@@ -11,8 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 TODO: Overall parameters are:
-- 1999 words
-- 4 figures
+- max 1999 words
+- max 4 figures
 - gh-pages branch (to view HTML directly in the repository for grading)
 
 
@@ -27,7 +27,7 @@ dim(pmlTrain)[[2]]
 c(dim(pmlTrain)[[1]], dim(pmlTest)[[1]])
 ```
 
-There are 19622 training samples and 20 testing samples. There are 160 columns. The predicted variable is __classe__ and it represents one of 5 classes of performing a _unilateral dumbbell biceps curl_. It takes values "A", "B", "C", "D", and "E". The meanings are defined on the [HAR website](http://groupware.les.inf.puc-rio.br/har) in the [QAR paper](http://groupware.les.inf.puc-rio.br/public/papers/2013.Velloso.QAR-WLE.pdf). In short, "A" represents an exercise performed according to specification, while the other classes represent particular identifiable errors in the performance of the exercise.
+There are 19622 training samples and 20 testing samples. There are 160 columns. The predicted variable is __classe__ and it represents one of 5 classes of performing a _unilateral dumbbell biceps curl_. It takes values "A", "B", "C", "D", and "E". The meanings are defined on the [HAR website](http://groupware.les.inf.puc-rio.br/har) and in the [QAR paper](http://groupware.les.inf.puc-rio.br/public/papers/2013.Velloso.QAR-WLE.pdf). In short, "A" represents an exercise performed according to specification, while the other classes represent particular identifiable errors in the performance of the exercise.
 
 The following shows the number of training samples for each class (__classe__):
 
@@ -69,15 +69,15 @@ names(cols) <- c("All NA", "No NA", "Some NA")
 cols
 ```
 
-This looks like the test set. According to the paper, windows are periods of time of specific duration for which sets of readings from the sensors were taken, with aggregate features computed for each window based on these sets of readings. So, the rows corresponding to _new windows_ must contain these aggregate statistics. The rest of the rows have missing values for the columns corresponding to these statistics. We notice that the test set contains no _new-window_ aggregate statistics. Let's look at the names of those statistics:
+This looks like the test set. According to the paper, windows are periods of time of specific duration for which sets of readings from the sensors were taken, with aggregate features computed for each window based on these sets of readings. So, the rows corresponding to _new window_ must contain these aggregate statistics. The rest of the rows have missing values for the columns corresponding to these statistics. We notice that the test set contains no _new-window_ aggregate statistics. Let's look at the names of those statistics:
 
 ```{r explore-6, echo=FALSE}
 names(pmlTest)[sapply(pmlTest, function(x) all(is.na(x)))]
 ```
 
-Indeed, we see that the are all aggregates, presumably of various sets of window readings: _min, max, avg, stddev, amplitude, skewness, kurtosis_. So the training set has data for the raw instrument readings as well as aggregate statistics for various data types for each window of readings. 
+Indeed, we see that they are all aggregates, presumably of various sets of window readings: _min, max, avg, stddev, amplitude, skewness, kurtosis_. So the training set has data for the raw instrument readings as well as aggregate statistics for various data types for each window of readings. 
 
-TODO - identify the 17 features
+TODO - identify the 17 features mentioned in the paper
 
 17 features named in the paper: 
 belt: 
@@ -101,7 +101,7 @@ glove:
 
 __So how are the aggregate statistics to be used for learning when there are no values for them in the test set?__
 
-1. It's possible that we need to select only the columns with the raw readings and play with different models using only them as predictors. The aggregate statistics are used for the window-based feature selection for activity recognition. Without them, predicting the class of th activity that a single reading sample (i.e. a single row of raw readings) belongs to is going to be very inaccurate. Note that the largest window of 2.5 seconds yielded the best predictive accuracy. This is to be expected since recognizing an activity through smaller observation windows becomes less and less accurate. _TODO: Try to recreate the results from the paper to see if they predicted per window or per row!_
+1. It's possible that we need to select only the columns with the raw readings and play with different models using only them as predictors. The aggregate statistics are used for the window-based feature selection for activity recognition. Without them, predicting the class of activity that a single reading sample (i.e. a single row of raw readings) belongs to is going to be very inaccurate. Note that the largest window of 2.5 seconds yielded the best predictive accuracy. This is to be expected since recognizing an activity through smaller observation windows becomes less and less accurate. _TODO: Try to recreate the results from the paper to see if they predicted per window or per row!_
 
 2. It might also be possible to use a windows's aggregate statistics for each row of the window. Intuitively, this will make easier the activity recognition for which a row may be a part of. _TODO: Aggreagate on window sizes per activity. Have different window sizes been used for the same data?_
 

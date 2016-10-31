@@ -10,6 +10,41 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## TODO
+
+1. Follow the approach in ISLR 3.2.2 and 3.4, following the 4 (7 in 3.4) questions:
+    + Is at least one of the predictors X1 , X2 , . . . , Xp useful in predicting the response?
+    + Do all the predictors help to explain Y, or is only a subset of the predictors useful?
+    + How well does the model fit the data?
+    + Given a set of predictor values, what response value should we predict, and how accurate is our prediction?
+2. Revisit intercept vs no-intercept. If intercept, interpret it correctly, i.e. explain _what is the baseline_ (i.e. x=0)
+3. Plots:
+    + before and after _adjustment_
+    + confidence/prediction intervals
+    + multi-dimensional plot highlighting the residuals, potentially testing the linearity assumption (to help with (4) below)
+    + ggplot2 outside of exploratory analysis
+4. Investigate relaxations of the linear model assumptions, namely additivity and linearity, and interpret in the conclusion.
+    + interaction terms of transmission type with other variables
+    + investigate and plot two parallel lines vs interaction term (see ISLR Fig 3.7)
+    + polynomial regression for the _quantitative adjustment regressors_ (have to investigate and plot separately)
+5. Investigate the potential problems in ISLR 3.3.3 (also see [Quick-R](http://www.statmethods.net/stats/rdiagnostics.html)):
+    + Non-linearity of the response-predictor relationships
+    + Correlation of error terms
+    + Non-constant variance of error terms
+    + Outliers
+    + High-leverage points
+6. Collinearity.
+    + collinearity (plot) vs correlation (number)
+    + multi-collinearity and the variance inflation factor (VIF)
+7. Explore the contrasts
+8. Rewrite the abstract to reflect the new analysis. State everything clearly.
+9. Style:
+    + remove verbosity
+    + leave enough r code chunks in the main section to keep the document together
+    + what to do with r code chunk output: intersperse into main text or format as appendix figures?
+    + consistent and thorough figure captions
+    + to save figure space, collect related plots into panels
+
 ## Abstract
 
 This document is a short study of the __mtcars__ dataset to determine the effect on car mileage per gallon (MPG) of automatic and manual transmission. With 95% confidence, we estimate that a car with manual transmision will have between 3 and 11 mpg higher mileage than an _equivalent_ car with automatic transmission. However, this small data set provides _insufficient_ evidence to confidently infer that manual transmission correlates with better performance in the wider population of cars.
@@ -29,7 +64,7 @@ cars <- transform(mtcars, cyl=as.factor(cyl), vs=as.factor(vs), gear=as.factor(g
 A quick plot of _MPG vs type of transmission_ (Fig A.2) suggests that manual transmission is better for MPG, though:
 
 1. The dataset is _small_.
-2. There are notable _variation_ and _overlap_.
+2. There is quite a bit of _variation_ and _overlap_.
 3. The data subset for manual transmission appears _skewed_.
 
 Another way to show the same effect is to use a T test of MPG for the samples with manual and automatic transmission:
@@ -53,13 +88,13 @@ What this is saying, is that, _all other factors being equal_, a car with manual
 
 ## Statistical Analysis
 
-The dataset has only two rows which allow us to compare the transmission type effect on MPG for _similar_ vehicles, the Toyota Corolla and the Toyota Corona:
+The dataset has only two rows which allow us to compare the transmission type effect on MPG for _similar_ vehicles, the Corola and the Corona:
 
 ```{r toyota, echo=FALSE}
 cars[grep("^Toyota", rownames(cars)),]
 ```
 
-Even here, we see that the weight, engine size, and horsepower can __confound__ the inference about effect of transmission type on car mileage. How to pick the additional regressors? Looking at the correlation matrix for the non-factor variables in the dataset (see Appendix B), we see that weight (__wt__), horsepower (__hp__), and engine displacement (__disp__) have the highest correlation with MPG. However, horsepower is highly correlated with displacement (i.e. engine size), so only one of the two should be used. Adding weight and displacement to our model, we see that the effect of manual vs automatic transmission on MPG is almost entirely occluded:
+Even here, we see that the weight, engine size, and horsepower can __confound__ the inference about effect of transmission type on car mileage. How to pick the additional regressors? Looking at the correlation matrix for the non-factor variables in the dataset (see Appendix B), we see that weight (__wt__), horsepower (__hp__), and engine displacement (__disp__) have the highest correlation with MPG. However, horsepower is highly correlated with displacement (i.e. engine size), so only one of the two should be used. Adding weight and displacement to our model, we see that the effect of manual vs automatic transmission on MPG is almost entirely wiped out:
 
 ```{r confound, echo=FALSE}
 summary(lm(mpg~am+disp+wt-1,cars))$coefficients
